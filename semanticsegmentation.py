@@ -106,6 +106,8 @@ cam = cv2.VideoCapture(0)
 while cam.isOpened():
     ret,frame = cam.read()
     if ret:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = np.expand_dims(frame,axis=0)/255
         predict = model.predict(frame)
         predict_reshaped = predict[:,:,:,1:]
         predicted_reshaped = np.squeeze(predict_reshaped)
