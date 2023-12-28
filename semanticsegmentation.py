@@ -102,21 +102,19 @@ for idx in range(len(image_path)):
     images.append(load_image(image_path[idx]))
 
 model = hub.load("https://tfhub.dev/google/HRNet/camvid-hrnetv2-w48/1")
-predict = model.predict(images[0])
-predict_reshaped = predict[:,:,:,1:]
-predicted_reshaped = np.squeeze(predict_reshaped)
-predcited_reshaped_max = np.argmax(predicted_reshaped,axis=-1)
-pred_mask_rgb = class_to_rgb(predcited_reshaped_max, class_index)
-plt.figure(figsize=[20,5])
-plt.subplot(1,3,1)
-plt.title("Input Image")
-plt.imshow(np.squeeze(images[0]))
-
-plt.subplot(1,3,2)
-plt.title("Segmented Image")
-plt.imshow(predcited_reshaped_max)
-
-plt.subplot(1,3,3)
-plt.title("Colour Coded Image")
-plt.imshow(pred_mask_rgb)
-plt.show()
+cam = cv2.VideoCapture(0)
+while cam.isOpened():
+    ret,frame = cam.read()
+    if ret:
+        predict = model.predict(frame)
+        predict_reshaped = predict[:,:,:,1:]
+        predicted_reshaped = np.squeeze(predict_reshaped)
+        predcited_reshaped_max = np.argmax(predicted_reshaped,axis=-1)
+        pred_mask_rgb = class_to_rgb(predcited_reshaped_max, class_index)
+        cv2.imshow("Segmented image",pred_mask_rgb)
+        if cv2.waitKey(0) == ord('q'):
+            break
+    else:
+        break
+cam.release()
+cv2.destroyAllWindows()
